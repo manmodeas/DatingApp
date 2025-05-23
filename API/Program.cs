@@ -1,28 +1,20 @@
-using API.Database;
-using Microsoft.EntityFrameworkCore;
+using API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddApplicationServices(builder.Configuration);
 
-builder.Services.AddDbContext<DataContext>(ops =>
-{
-    ops.UseSqlite(builder.Configuration.GetConnectionString("MyDatabase"));
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("myPolicy", policy =>
-    {
-        policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200", "https://localhost:4200");
-    });
-});
+builder.Services.AddIdentityService(builder.Configuration);
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseCors("myPolicy");
+
+//order needs to be proper authentication before authorize
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
