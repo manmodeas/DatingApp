@@ -16,22 +16,23 @@ namespace API.Controllers
         {
             if(await UserExits(registerDto.Username))
                 return BadRequest("Username is taken.");
+            return Ok();
 
-            using var hmac = new HMACSHA512();
+            //using var hmac = new HMACSHA512();
 
-            var user = new AppUser()
-            {
-                UserName = registerDto.Username.ToLower(),
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key
-            };
-            dbContext.Users.Add(user);
-            int count = await dbContext.SaveChangesAsync();
+            //var user = new AppUser()
+            //{
+            //    UserName = registerDto.Username.ToLower(),
+            //    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
+            //    PasswordSalt = hmac.Key
+            //};
+            //dbContext.Users.Add(user);
+            //int count = await dbContext.SaveChangesAsync();
 
-            if (count == 0)
-                return StatusCode(500, "Error while adding to database.");
+            //if (count == 0)
+            //    return StatusCode(500, "Error while adding to database.");
 
-            return Ok(user);
+            //return Ok(user);
         }
 
         [HttpPost("login")]
