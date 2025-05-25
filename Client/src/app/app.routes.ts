@@ -5,6 +5,8 @@ import { MemberDetailComponent } from './components/member/member-detail/member-
 import { ListsComponent } from './components/lists/lists.component';
 import { MessagesComponent } from './components/messages/messages.component';
 import { authGuard } from './_gurads/auth.guard';
+import { MemberEditComponent } from './components/member/member-edit/member-edit.component';
+import { preventUnsavedChangesGuard } from './_gurads/prevent-unsaved-changes.guard';
 //we can provide multiple gurads in canAvticate 
 export const routes: Routes = [
     {path: '', component:HomeComponent},
@@ -12,9 +14,11 @@ export const routes: Routes = [
         path: '',
         runGuardsAndResolvers: 'always',
         canActivate: [authGuard],
+        canDeactivate: [preventUnsavedChangesGuard],
         children : [
             {path: 'members', component:MemberListComponent},
-            {path: 'members/:username', component:MemberDetailComponent},
+            {path: 'members/:username', component:MemberDetailComponent},            
+            {path: 'member/edit', component:MemberEditComponent},
             {path: 'lists', component:ListsComponent},
             {path: 'messages', component:MessagesComponent}
         ]
