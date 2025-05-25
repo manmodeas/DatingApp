@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, Inject, OnInit } from '@angular/core';
 import { NavbarComponent } from "./components/navbar/navbar.component";
 import { AccountService } from './_services/account.service';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +15,7 @@ export class AppComponent implements OnInit {
 
   private http = inject(HttpClient);
   private accountService = inject(AccountService);
+  private router = inject(Router);
   title = 'Dating App';
   users : any;
 
@@ -29,6 +30,7 @@ export class AppComponent implements OnInit {
 
     const user  = JSON.parse(userString);
     this.accountService.currentUser.set(user);
+    this.router.navigateByUrl('/members');
   }
 
 
