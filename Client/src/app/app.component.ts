@@ -4,10 +4,11 @@ import { Component, inject, Inject, OnInit } from '@angular/core';
 import { NavbarComponent } from "./components/navbar/navbar.component";
 import { AccountService } from './_services/account.service';
 import { Router, RouterOutlet } from '@angular/router';
+import { NgxSpinnerComponent } from 'ngx-spinner';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent],
+  imports: [RouterOutlet, NavbarComponent, NgxSpinnerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -30,7 +31,6 @@ export class AppComponent implements OnInit {
 
     const user  = JSON.parse(userString);
     this.accountService.currentUser.set(user);
-    this.router.navigateByUrl('/members');
   }
 
 

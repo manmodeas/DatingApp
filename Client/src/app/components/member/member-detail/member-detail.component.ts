@@ -13,12 +13,12 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
 })
 export class MemberDetailComponent implements OnInit {  
   private memberService = inject(MembersService);
-  private route = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);   //Since we are routing to this component.. there no way for us to pass "member" from Member-Car/Member-List to pass to this component, So all we can do is retrive the username and ask for the data to serve again 
   images: GalleryItem[] = [];
 
   member?: Member;
   
-    ngOnInit(): void {
+  ngOnInit(): void {
     this.loadMember();
   }
 
