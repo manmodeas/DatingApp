@@ -9,7 +9,7 @@ using System.Text;
 
 namespace API.Controllers
 {
-    public class AccountController(DataContext dbContext, ITokenService tokenService) : BaseApiController
+    public class AccountController(DataContext dbContext, IUserRepository userRepository, ITokenService tokenService) : BaseApiController
     {
         [HttpPost("register")]  //account register
         public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
@@ -38,7 +38,8 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await dbContext.Users.Where(x => x.UserName == loginDto.Username.ToLower()).FirstOrDefaultAsync();
+            // var user = await dbContext.Users.Where(x => x.UserName == loginDto.Username.ToLower()).FirstOrDefaultAsync();
+            var user = await userRepository.GetUserByUsernameAsync(loginDto.Username);
 
             if (user == null)
                 return Unauthorized("Invalid username.");
@@ -55,7 +56,8 @@ namespace API.Controllers
             UserDto userDto = new UserDto
             {
                 Username = user.UserName,
-                Token = tokenService.CreateToken(user)
+                Token = tokenService.CreateToken(user),
+                PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             };
             return Ok(userDto);
         }
