@@ -1,0 +1,91 @@
+import { Component, inject, input, OnInit, output } from '@angular/core';
+import { Member } from '../../../_models/member';
+import { DecimalPipe, NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
+import { FileUploader, FileUploadModule } from 'ng2-file-upload';
+import { AccountService } from '../../../_services/account.service';
+import { environment } from '../../../../environments/environment';
+import { MembersService } from '../../../_services/members.service';
+import { Photo } from '../../../_models/photo';
+
+@Component({
+  selector: 'app-photo-editor',
+  imports: [NgIf, NgFor, NgClass, NgStyle, FileUploadModule, DecimalPipe],
+  templateUrl: './photo-editor.component.html',
+  styleUrl: './photo-editor.component.css'
+})
+export class PhotoEditorComponent implements OnInit{
+
+  accountService = inject(AccountService);
+  private memberService = inject(MembersService);
+  member = input.required<Member>();
+  memberChange = output<Member>();
+  uploader?: FileUploader;
+  hasBaseDropzoneOver = false;
+  baseUrl = environment.apiUrl;
+
+  ngOnInit(): void {
+    this.initilizeUploader(); 
+  }
+
+  fileOverBase(e: any) {
+    this.hasBaseDropzoneOver = e;
+  }
+
+  setMainPhoto(photo: Photo) {
+    this.memberService.setMainPhoto(photo).subscribe({
+      next: _ => {
+        const user = this.accountService.currentUser();
+        if(user)
+        {
+          user.photoUrl = photo.url;
+          this.accountService.setCurrentUser(user);
+        }
+        const updateMember = {...this.member()}
+        updateMember.photoUrl = photo.url;
+        updateMember.photos.forEach(p => {
+          if(p.isMain) p.isMain = false;
+          if(p.id === photo.id) p.isMain = true;
+        })
+      }
+    })
+  }
+
+  onDeletePhoto(photo: Photo) {
+    this.memberService.deletePhoto(photo).subscribe({
+      next: _ => {
+        const updatedMember = {...this.member()}
+        updatedMember.photos = updatedMember.photos.filter(p => p.id !== photo.id)
+        this.memberChange.emit(updatedMember);
+      }
+    })
+  }
+
+  initilizeUploader() {
+    this.uploader = new FileUploader({
+      url: this.baseUrl + 'users/add-photo',
+      authToken: `Bearer ` + this.accountService.currentUser()?.token,
+      isHTML5: true,
+      allowedFileType: ['image'],
+      removeAfterUpload: true,
+      autoUpload: false,
+      maxFileSize: 10 * 1024 * 1024
+    });
+
+    this.uploader.onAfterAddingFile = (file) => {
+      file.withCredentials = false;
+      //we are using this beacuse we are sending our authentiocation in header rather than cookies so we need to disable the credentials  
+    }
+
+    this.uploader.onSuccessItem = (item, response, status, header) => {
+      const photo = JSON.parse(response);
+      //we can't change member directly here because its a input 
+      //We can change it but its not a correct way
+      //we need to first change in where its comming from that is parent using 'output'
+      //than parent will update this component 'member'
+      const updatedMember = {...this.member()}  // creates a shallow copy of the object returned by this.member()
+      updatedMember.photos.push(photo);
+      this.memberChange.emit(updatedMember);
+    }
+  }
+
+}
