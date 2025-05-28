@@ -2,6 +2,7 @@
 using API.DTOs;
 using API.Entities;
 using API.Extensions;
+using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -18,10 +19,12 @@ namespace API.Controllers
 
         //[AllowAnonymous]    //this will allow all anonymus request even if we have Authorize at the top of class
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
+        public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParams param)
         {
-            var users = await userRepository.GetMembersAsync();
+            param.CurerntUserName = User.GetUserName();
+            var users = await userRepository.GetMembersAsync(param);
 
+            Response.AddPaginationHeader(users);
             //var userToReturn = mapper.Map<IEnumerable<MemberDto>>(users);
              
             return Ok(users);
@@ -88,6 +91,7 @@ namespace API.Controllers
             {
                 Url = result.SecureUrl.AbsoluteUri,
                 PublicId = result.PublicId,
+                IsMain = user.Photos.Count == 0 ? true : false
             };
 
             user.Photos.Add(photo);
