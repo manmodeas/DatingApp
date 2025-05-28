@@ -7,6 +7,9 @@ namespace API.Helpers
 {
     public class AutoMapperProfiles : Profile
     {
+        //Important Note : If you get auto mapper error then don't try to solve it from client side 
+        //Check the terminal of serve side there it will have proper detailed explaination 
+        //why did the auto mapper failed 
         public AutoMapperProfiles()
         {
             CreateMap<AppUser, MemberDto>()
@@ -15,6 +18,10 @@ namespace API.Helpers
             CreateMap<Photo, PhotoDto>();
 
             CreateMap<MemberUpdateDto, AppUser>();
+            CreateMap<RegisterDto, AppUser>();
+            CreateMap<string, DateOnly>().ConvertUsing(s => DateOnly.Parse(s));
+
+            
         }
     }
 }

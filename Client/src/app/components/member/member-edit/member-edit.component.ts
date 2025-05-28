@@ -4,13 +4,14 @@ import { AccountService } from '../../../_services/account.service';
 import { MembersService } from '../../../_services/members.service';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { PhotoEditorComponent } from "../photo-editor/photo-editor.component";
+import { TimeagoModule } from 'ngx-timeago';
 
 @Component({
   selector: 'app-member-edit',
-  imports: [TabsModule, FormsModule, PhotoEditorComponent],
+  imports: [TabsModule, FormsModule, PhotoEditorComponent, TimeagoModule, DatePipe],
   templateUrl: './member-edit.component.html',
   styleUrl: './member-edit.component.css'
 })
@@ -57,11 +58,11 @@ export class MemberEditComponent implements OnInit{
         this.toastr.success('Profile updated successfully');
         this.editForm?.reset(this.member); 
       }
-    });
-    
+    });    
   }
 
   onMemberChange(event: Member) {
     this.member = event;
+    // this.memberService.paginatedResult()?.items.up(members => members.map(m => m.userName === event.userName ? event : m))
   }
 }

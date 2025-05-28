@@ -2,6 +2,7 @@
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
@@ -9,30 +10,35 @@ using System.Text;
 
 namespace API.Controllers
 {
-    public class AccountController(DataContext dbContext, IUserRepository userRepository, ITokenService tokenService) : BaseApiController
+    public class AccountController(DataContext dbContext, IUserRepository userRepository, 
+        ITokenService tokenService, IMapper mapper) : BaseApiController
     {
         [HttpPost("register")]  //account register
-        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-            if(await UserExits(registerDto.Username))
-                return BadRequest("Username is taken.");
-            return Ok();
+            if(await UserExits(registerDto.Username)) return BadRequest("Username is taken.");
 
-            //using var hmac = new HMACSHA512();
+            using var hmac = new HMACSHA512();
 
-            //var user = new AppUser()
-            //{
-            //    UserName = registerDto.Username.ToLower(),
-            //    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-            //    PasswordSalt = hmac.Key
-            //};
-            //dbContext.Users.Add(user);
-            //int count = await dbContext.SaveChangesAsync();
+            var user = mapper.Map<AppUser>(registerDto);
 
-            //if (count == 0)
-            //    return StatusCode(500, "Error while adding to database.");
+            user.UserName = registerDto.Username.ToLower();
+            user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password));
+            user.PasswordSalt = hmac.Key;
 
-            //return Ok(user);
+            dbContext.Users.Add(user);
+            int count = await dbContext.SaveChangesAsync();
+
+            if (count == 0)
+                return StatusCode(500, "Error while adding to database.");
+
+            return new UserDto
+            {
+                Username = user.UserName,
+                Gender = user.Gender,
+                Token = tokenService.CreateToken(user),
+                KnownAs = user.KnownAs
+            };  
         }
 
         [HttpPost("login")]
@@ -53,13 +59,15 @@ namespace API.Controllers
                 if (computedhash[i] != user.PasswordHash[i])
                     return Unauthorized("Invalid password.");
             }
-            UserDto userDto = new UserDto
+            
+            return new UserDto
             {
                 Username = user.UserName,
+                KnownAs = user.KnownAs,
+                Gender = user.Gender,
                 Token = tokenService.CreateToken(user),
                 PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             };
-            return Ok(userDto);
         }
 
         private async Task<bool> UserExits(string username)
