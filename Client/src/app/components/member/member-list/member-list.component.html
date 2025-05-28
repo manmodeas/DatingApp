@@ -14,7 +14,7 @@
                     class="form-control ms-1" 
                     style="width: 70px;"
                     name="minAge"
-                    [(ngModel)]="memberService.userParams().minAge">
+                    [(ngModel)]="accountService.userParams().minAge">
             </div>
             <div class="d-flex mx-2">
                 <label class="col-form-label">Age to: </label>
@@ -23,7 +23,7 @@
                     class="form-control ms-1" 
                     style="width: 70px;"
                     name="maxAge"
-                    [(ngModel)]="memberService.userParams().maxAge">
+                    [(ngModel)]="accountService.userParams().maxAge">
             </div>
             <div class="d-flex mx-2">
                 <label class="col-form-label">Show: </label>
@@ -31,7 +31,7 @@
                     style="width: 130px;"
                     class="form-select ms-1"
                     name="gender" 
-                    [(ngModel)]="memberService.userParams().gender"
+                    [(ngModel)]="accountService.userParams().gender"
                 >
                     @for (gender of genderList; track gender.value) {
                         <option [value]="gender.value">
@@ -51,7 +51,7 @@
                         name="orderBy"
                         (click)="loadMembers()"
                         btnRadio="lastActive"   
-                        [(ngModel)]="memberService.userParams().orderBy" 
+                        [(ngModel)]="accountService.userParams().orderBy" 
                     >Last Active</button>
                     <button
                         type="button"
@@ -59,7 +59,7 @@
                         name="orderBy"
                         (click)="loadMembers()"
                         btnRadio="created"   
-                        [(ngModel)]="memberService.userParams().orderBy" 
+                        [(ngModel)]="accountService.userParams().orderBy" 
                     >Created</button>
                 </div>
             </div>

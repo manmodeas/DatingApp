@@ -5,6 +5,7 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { MemberCardComponent } from "../member-card/member-card.component";
 import { UserParam } from '../../../_models/userParams';
 import { FormsModule } from '@angular/forms';
+import { AccountService } from '../../../_services/account.service';
 
 @Component({
   selector: 'app-member-list',
@@ -14,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class MemberListComponent implements OnInit{
   memberService = inject(MembersService);
+  accountService = inject(AccountService);
   genderList = [{value: 'male', display: 'Males'}, {value: 'female', display: 'Females'}]
 
   ngOnInit(): void {
@@ -29,8 +31,8 @@ export class MemberListComponent implements OnInit{
   }
   
   pagedChanged(event: any) {
-    if(this.memberService.userParams().pageNumber != event.page) {
-      this.memberService.userParams().pageNumber = event.page;
+    if(this.accountService.userParams().pageNumber != event.page) {
+      this.accountService.userParams().pageNumber = event.page;
       this.loadMembers();
     }
   }
