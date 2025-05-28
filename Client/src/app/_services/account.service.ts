@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { User } from '../_models/user';
 import { map } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { LikesService } from './likes.service';
+import { UserParam } from '../_models/userParams';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +12,9 @@ import { environment } from '../../environments/environment';
 export class AccountService {
 
   private http = inject(HttpClient);
+  private likeService = inject(LikesService);
   private baseUrl = environment.apiUrl;
-
+  userParams = signal<UserParam>(new UserParam(null));
   currentUser = signal<User | null>(null);
   
   login(model : any)
@@ -21,6 +24,7 @@ export class AccountService {
         if(user)
         {
           this.setCurrentUser(user);
+          this.likeService.getLikeIds();
         }
       })
     );
@@ -41,8 +45,14 @@ export class AccountService {
   setCurrentUser(user: User) {
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUser.set(user); 
+    this.resetUserParams(user);
+    this.likeService.getLikeIds();
   }
   
+  resetUserParams(user: User) {
+    this.userParams.set(new UserParam(user));
+  }
+
   logout()
   {
     localStorage.removeItem('user');
