@@ -40,6 +40,7 @@ export class MembersService {
       next: response => {
         setPaginatedResponse(response, this.paginatedResult);
         this.memberCache.set(Object.values(this.accountService.userParams()).join('-'), response);
+        this.reloadMembers.set(false);
       }
     });
   }

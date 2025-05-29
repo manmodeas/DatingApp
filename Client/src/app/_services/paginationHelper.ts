@@ -8,7 +8,6 @@ export function setPaginatedResponse<T>(response: HttpResponse<T>,
       items: response.body as T ,
       pagination: JSON.parse(response.headers.get("Pagination")!)
     })
-    // this.reloadMembers.set(false);
   }
 
 export function setPaginationHeaders(pageNumber: number, pageSize: number) {
