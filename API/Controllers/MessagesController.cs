@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Authorize]
-    public class MessagesController(IMessageRepository messageRepository, 
+    public class MessagesController(IMessageRepository messageRepository,
         IUserRepository userRepository, IMapper mapper) : BaseApiController
     {
         [HttpPost]
@@ -24,7 +24,8 @@ namespace API.Controllers
 
             var recipient = await userRepository.GetUserByUsernameAsync(createMessageDto.RecipientUsername.ToLower());
 
-            if (sender is null || recipient is null) return BadRequest("Can not send message");
+            if (sender is null || recipient is null || sender.UserName is null || recipient.UserName is null) 
+                return BadRequest("Can not send message");
 
             var message = new Message
             {
