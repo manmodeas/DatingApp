@@ -2,12 +2,13 @@
 using API.Entities;
 using API.Extensions;
 using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-
+    [Authorize]
     public class LikesController(ILikesRepository likesRepository) : BaseApiController
     {
         [HttpPost("{targetUserId:int}")]

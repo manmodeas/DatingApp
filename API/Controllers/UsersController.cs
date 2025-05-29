@@ -16,7 +16,7 @@ namespace API.Controllers
     //[AllowAnonymous]  -   this will allow all anonymus request without checking
     public class UsersController(IUserRepository userRepository, IMapper mapper, IPhotoService photoService) : BaseApiController
     {
-
+        //[Authorize(Roles = "Admin")]      //If we keep this then user with role = "Admin" which you can see in token created when loged in will be accessable to this GetUsers
         //[AllowAnonymous]    //this will allow all anonymus request even if we have Authorize at the top of class
         [HttpGet]
         public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParams param)
