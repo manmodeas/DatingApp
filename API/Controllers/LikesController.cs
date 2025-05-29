@@ -49,8 +49,9 @@ namespace API.Controllers
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUserLikes([FromQuery] LikesParam likeParam)
         {
             likeParam.UserId = User.GetUserId();
-
             var users = await likesRepository.GetUserLikes(likeParam);
+
+            Response.AddPaginationHeader(users);
 
             return Ok(users);
         }

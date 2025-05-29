@@ -1,1 +1,86 @@
-<p>messages works!</p>
+<div class="container mt-3">
+    <div class="d-flex">
+        <div class="btn-group">
+            <button 
+                class="btn btn-primary"
+                btnRadio="Unread"
+                [(ngModel)]="container"
+                (click)="loadMessages()"
+            >Unread</button>
+            <button 
+                class="btn btn-primary"
+                btnRadio="Inbox"
+                [(ngModel)]="container"
+                (click)="loadMessages()"
+            >Inbox</button>
+            <button 
+                class="btn btn-primary"
+                btnRadio="Outbox"
+                [(ngModel)]="container"
+                (click)="loadMessages()"
+            >Outbox</button>
+        </div>
+    </div>
+</div>
+
+@if (!messageService.paginatedResult()?.items || messageService.paginatedResult()?.items?.length === 0) {
+    <h2 class="mt-3">No Messages</h2>
+} @else { 
+   
+    <table class="table table-hover mt-3" style="cursor: pointer;">
+        <thead>
+            <tr>
+                <th style="width: 40%;">Messages</th>
+                <th style="width: 20%;">From / To</th>
+                <th style="width: 20%;">Sent / Received</th>
+                <th style="width: 20%;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (message of messageService.paginatedResult()?.items; track message.id) {
+                <tr routerLink="{{getRoute(message)}}" [queryParams]="{tab: 'Messages'}">
+                    <td>{{message.content}}</td>
+                    <td>
+                        <div>
+                            <!-- if we use this.container === "Outbox" -> then we will see weird images issues
+                             where image changes even before new data is loaded
+                             To avoid that use the component property to run the logic there  
+                             So we will have access to that property ater the data has come back 
+                             which will give us the smother operation when switching between different views-->
+                            <img
+                                class="rounded-circle me-2" 
+                                [src]="isOutbox
+                                ? (message.recipientPhotoUrl || './assets/user.png') 
+                                : (message.senderPhotoUrl || './assets/user.png')" alt="Image of user">
+                                <strong>{{isOutbox
+                                    ? message.recipientUsername : message.senderUsername}}</strong>
+                        </div>
+                    </td>
+                    <td>{{message.messageSent | timeago}}</td>
+                    <td (click)="$event.stopPropagation()" ><button (click)="deleteMessage(message.id)" class="btn btn-danger">Delete</button></td>
+                    <!-- without event.stopPropogation() if we click Delete button it will execute properly but it will also trigger the routerlike and takes us to "members/member" -->
+                </tr>
+            }
+        </tbody>
+    </table>   
+}
+
+
+@if(messageService.paginatedResult()?.pagination && messageService.paginatedResult()?.pagination?.totalItems! > 0)
+{
+    <div class="d-flex justify-content-center">
+        <pagination 
+            [boundaryLinks]="true" 
+            [totalItems]="messageService.paginatedResult()?.pagination!.totalItems"
+            [itemsPerPage]="messageService.paginatedResult()?.pagination!.itemsPerPage"
+            (pageChanged)="pageChanged($event)"
+            [maxSize]="10"
+            [(ngModel)]="messageService.paginatedResult()?.pagination!.currentPage"
+            previousText="&lsaquo;" 
+            nextText="&rsaquo;" 
+            firstText="&laquo;" 
+            lastText="&raquo;">
+        
+        </pagination>
+    </div>
+}
