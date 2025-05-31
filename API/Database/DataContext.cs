@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Database
 {
@@ -11,7 +12,10 @@ namespace API.Database
     {
         public DbSet<UserLike> Likes { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<Connection> Connections { get; set; }
 
+             
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -52,6 +56,23 @@ namespace API.Database
                 .HasOne(s => s.Recipient)
                 .WithMany(m => m.MessagesReceived)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            var utcConverter = new ValueConverter<DateTime, DateTime>(
+               v => v, // Save as-is
+               v => DateTime.SpecifyKind(v, DateTimeKind.Utc)); // Read as UTC
+
+            var utcConverter2 = new ValueConverter<DateTime?, DateTime?>(
+               v => v, // Save as-is
+               v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null); // Read as UTC
+
+
+            builder.Entity<Message>()
+                .Property(e => e.MessageSent)
+                .HasConversion(utcConverter);
+
+            builder.Entity<Message>()
+                .Property(e => e.DataRead)
+                .HasConversion(utcConverter2);
         }
     }
 }

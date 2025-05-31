@@ -21,11 +21,20 @@ namespace API.Helpers
             CreateMap<RegisterDto, AppUser>();
             CreateMap<string, DateOnly>().ConvertUsing(s => DateOnly.Parse(s));
 
+            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             CreateMap<Message, MessageDto>()
-                .ForMember(x => x.SenderPhotoUrl, 
+                .ForMember(x => x.SenderPhotoUrl,
                     o => o.MapFrom(s => s.Sender.Photos.FirstOrDefault(x => x.IsMain)!.Url))
-                .ForMember(x => x.RecipientPhotoUrl, 
+                .ForMember(x => x.RecipientPhotoUrl,
                     o => o.MapFrom(m => m.Recipient.Photos.FirstOrDefault(x => x.IsMain)!.Url));
+
+            //CreateMap<DateTime, DateTime>()
+            //    .AfterMap((src, dest) => 
+            //        src = DateTime.SpecifyKind(src, DateTimeKind.Utc));
+            //CreateMap<DateTime?, DateTime?>()
+            //    .AfterMap((src, dest) =>
+            //        src = src.HasValue ? DateTime.SpecifyKind(src.Value, DateTimeKind.Utc) : null);
+
         }
     }
 }
