@@ -10,6 +10,26 @@ namespace API.Database
 {
     public class MessageRepository(DataContext context, IMapper mapper) : IMessageRepository
     {
+        public void RemoveConnection(Connection connection)
+        {
+            context.Connections.Remove(connection);
+        }
+        public async Task<Connection?> GetConnection(string connectionId)
+        {
+            return await context.Connections.FindAsync(connectionId);
+        }
+
+        public void AddGroup(Group group)
+        {
+            context.Groups.Add(group);
+        }
+        public async Task<Group?> GetMessageGroup(string groupName)
+        {
+            return await context.Groups
+                    .Include(x => x.Connections)
+                    .FirstOrDefaultAsync(x => x.Name == groupName);
+        }
+
         public void AddMessage(Message message)
         {
             context.Messages.Add(message);
@@ -46,11 +66,10 @@ namespace API.Database
         public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string recipientUsername)
         {
             var messages = await context.Messages
-                            .Include(x => x.Sender).ThenInclude(x => x.Photos)
-                            .Include(r => r.Recipient).ThenInclude(r => r.Photos)
                             .Where(x => (x.RecipientUsername == currentUsername && x.SenderUsername == recipientUsername && x.RecipientDeleted == false) ||
                                     (x.SenderUsername == currentUsername && x.RecipientUsername == recipientUsername && x.SenderDeleted == false))
                             .OrderBy(x => x.MessageSent)
+                            .ProjectTo<MessageDto>(mapper.ConfigurationProvider)
                             .ToListAsync();
             var unreadMessages = messages.Where(x => x.DataRead == null && x.RecipientUsername == currentUsername).ToList();
 
@@ -60,12 +79,20 @@ namespace API.Database
                 await context.SaveChangesAsync();
             }
 
-            return mapper.Map<IEnumerable<MessageDto>>(messages);
+            return messages; 
         }
 
         public async Task<bool> SaveAllAsync()
         {
             return await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Group?> GetGroupForConnection(string connectionId)
+        {
+            return await context.Groups
+                .Include(x => x.Connections)
+                .Where(x => x.Connections.Any(c => c.ConnectionId == connectionId))
+                .FirstOrDefaultAsync();
         }
     }
 }

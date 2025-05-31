@@ -5,12 +5,14 @@ import { map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LikesService } from './likes.service';
 import { UserParam } from '../_models/userParams';
+import { PresenceService } from './presence.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
 
+  private presenceServce = inject(PresenceService);
   private http = inject(HttpClient);
   private likeService = inject(LikesService);
   private baseUrl = environment.apiUrl;
@@ -55,6 +57,7 @@ export class AccountService {
     this.currentUser.set(user); 
     this.resetUserParams(user);
     this.likeService.getLikeIds();
+    this.presenceServce.createHubConnection(user);
   }
   
   resetUserParams(user: User) {
@@ -65,5 +68,6 @@ export class AccountService {
   {
     localStorage.removeItem('user');
     this.currentUser.set(null);
+    this.presenceServce.stopHubConnection();
   }
 }
