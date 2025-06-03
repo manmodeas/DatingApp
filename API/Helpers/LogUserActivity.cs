@@ -16,15 +16,15 @@ namespace API.Helpers
 
             var userId = resutContext.HttpContext.User.GetUserId();
 
-            var repo = resutContext.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
+            var unitOfWork = resutContext.HttpContext.RequestServices.GetRequiredService<IUnitOfWork>();
 
-            var user = await repo.GetUserByIdAsync(userId);
+            var user = await unitOfWork.UserRepository.GetUserByIdAsync(userId);
 
             if (user is null) return;
 
             user.LastActive = DateTime.UtcNow;
 
-            await repo.SaveAllAsync();
+            await unitOfWork.Complete();
 
         }
     }

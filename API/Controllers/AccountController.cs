@@ -11,7 +11,7 @@ using System.Text;
 
 namespace API.Controllers
 {
-    public class AccountController(UserManager<AppUser> userManager, IUserRepository userRepository, 
+    public class AccountController(UserManager<AppUser> userManager, 
         ITokenService tokenService, IMapper mapper) : BaseApiController
     {
         [HttpPost("register")]  //account register

@@ -43,7 +43,6 @@ export class PresenceService {
       })
 
       this.hubsConnection.on('NewMessageReceived', ({username, knownAs}) => {
-        console.log(username + " " + knownAs);
         this.toastr.info(knownAs + ' has sent you a message! Click me to see it')
           .onTap
           .pipe(take(1))
