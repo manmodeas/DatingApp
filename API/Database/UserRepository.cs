@@ -61,11 +61,6 @@ namespace API.Database
                 .ToListAsync();
         }
 
-        public async Task<bool> SaveAllAsync()
-        {
-            return await dbContext.SaveChangesAsync() > 0;
-        }
-
         public void Update(AppUser user)
         {
             //Its Uneccesary 
