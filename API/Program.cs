@@ -26,9 +26,18 @@ app.UseCors("myPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
 app.MapHub<MessageHub>("hubs/message");
+
+//When you host client using server local host 
+//We will find that routing is not working i.e. localhost/members it will show page not found
+//Because our api doesn't know anything aboout routing 
+//So we will have to create a fall back controler to user routing
+app.MapFallbackToController("Index", "FallBack");   
 
 using var scoped = app.Services.CreateScope();
 var services = scoped.ServiceProvider;
