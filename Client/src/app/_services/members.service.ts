@@ -4,7 +4,6 @@ import { environment } from '../../environments/environment';
 import { Member } from '../_models/member';
 import { Photo } from '../_models/photo';
 import { PaginatedResult } from '../_models/pagination';
-import { UserParam } from '../_models/userParams';
 import { of } from 'rxjs';
 import { AccountService } from './account.service';
 import { setPaginatedResponse, setPaginationHeaders } from './paginationHelper';
