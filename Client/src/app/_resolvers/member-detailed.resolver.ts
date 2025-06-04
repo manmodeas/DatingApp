@@ -10,5 +10,5 @@ export const memberDetailedResolver: ResolveFn<Member | null> = (route, state) =
 
   if(!username) return null;
 
-  return memberService.getMember(username); 
+  return memberService.getMember(username, false); 
 };

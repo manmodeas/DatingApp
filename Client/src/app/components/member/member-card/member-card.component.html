@@ -1,17 +1,19 @@
-<div class="card mb-4">
-    <div class="card-img-wrapper">
+<div class="card mb-4" type="button" (click)="onClick()">
+    <div class="card-img-wrapper" >
         <img src="{{member().photoUrl || './assets/user.png'}}" alt="{member().knownAs}" class="card-img-wrapper">
-        <ul class="member-icons animate list-inline text-center">
-            <li class="list-inline-item">
-                <button routerLink='/members/{{member().userName}}' routerLinkActive="router-link-active"  class="btn btn-primary"><i class="fa fa-user"></i></button>
-            </li>
-            <li class="list-inline-item">
-                <button (click)="toggelLike()" class="btn btn-primary"><i class="fa fa-heart"></i></button>
-            </li>
-            <li class="list-inline-item">
-                <button class="btn btn-primary" routerLink="/members/{{member().userName}}" [queryParams]="{tab: 'Messages'}"><i class="fa fa-envelope"></i></button>
-            </li>
-        </ul>
+        @if(!isJustCard()) {
+            <ul class="member-icons animate list-inline text-center">
+                <li class="list-inline-item">
+                    <button routerLink='/members/{{member().userName}}' routerLinkActive="router-link-active"  class="btn btn-primary"><i class="fa fa-user"></i></button>
+                </li>
+                <li class="list-inline-item">
+                    <button (click)="toggelLike()" class="btn btn-primary"><i class="fa fa-heart"></i></button>
+                </li>
+                <li class="list-inline-item">
+                    <button class="btn btn-primary" routerLink="/members/{{member().userName}}" [queryParams]="{tab: 'Messages'}"><i class="fa fa-envelope"></i></button>
+                </li>
+            </ul>
+        }
     </div>    
     <div class="card-body p-1">
         <h6 class="card-title text-center mb-1">

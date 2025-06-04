@@ -22,11 +22,22 @@ namespace API.Controllers
         public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParams param)
         {
             param.CurerntUserName = User.GetUserName();
-            var users = await unitOfWork.UserRepository.GetMembersAsync(param);
+            var users = await unitOfWork.UserRepository.GetMembersWithFilterAsync(param);
 
             Response.AddPaginationHeader(users);
             //var userToReturn = mapper.Map<IEnumerable<MemberDto>>(users);
              
+            return Ok(users);
+        }
+
+        [HttpGet("all-users")]
+        public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] PaginationParam param)
+        {
+            var users = await unitOfWork.UserRepository.GetMembersAsync(param, true);   //For now made it so to retrive unpproved photo when called
+
+            Response.AddPaginationHeader(users);
+            //var userToReturn = mapper.Map<IEnumerable<MemberDto>>(users);
+
             return Ok(users);
         }
         ////[Authorize]     //This won't work if we have AllowAnonymous attribute at top of class
@@ -41,9 +52,9 @@ namespace API.Controllers
         //}
 
         [HttpGet("{username}")]   //  /api/users/username
-        public async Task<ActionResult<MemberDto>> GetUserByUsername(string username)
+        public async Task<ActionResult<MemberDto>> GetUserByUsername(string username, bool isUnapprovedPhoto)
         {
-            var user = await unitOfWork.UserRepository.GetMemberAsync(username);
+            var user = await unitOfWork.UserRepository.GetMemberAsync(username, isUnapprovedPhoto);
             if (user == null)
                 return NotFound();
             //var userToReturn = mapper.Map<MemberDto>(user);
@@ -91,7 +102,6 @@ namespace API.Controllers
             {
                 Url = result.SecureUrl.AbsoluteUri,
                 PublicId = result.PublicId,
-                IsMain = user.Photos.Count == 0 ? true : false
             };
 
             user.Photos.Add(photo);
@@ -119,7 +129,7 @@ namespace API.Controllers
 
             var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
 
-            if (photo is null || photo.IsMain) return BadRequest("Can not use this as main photo");
+            if (photo is null || photo.IsMain || !photo.IsApproved) return BadRequest("Can not use this as main photo");
 
             var curMainPhoto = user.Photos.FirstOrDefault(x => x.IsMain);
 
@@ -131,6 +141,30 @@ namespace API.Controllers
                 return NoContent();
 
             return BadRequest("Problem setting main photo");
+        }
+
+        [HttpPut("approve-photo/{username}")]
+        public async Task<ActionResult> ApprovePhoto(string username, int photoid)
+        {
+            var user = await unitOfWork.UserRepository.GetUserByUsernameAsync(username, true);
+
+            if (user is null) return BadRequest("Could not find user");
+
+            var photo = user.Photos.FirstOrDefault(x => x.Id == photoid);
+
+            if (photo is null || photo.IsApproved) return BadRequest("Can not approve this photo");
+
+            photo.IsApproved = true;
+
+            if (!user.Photos.Any(x => x.IsMain))
+            {
+                photo.IsMain = true;
+            }
+
+            if (await unitOfWork.Complete())
+                return NoContent();
+
+            return BadRequest("Problem approving the photo");
         }
 
         [HttpDelete("delete-photo/{photoId:int}")]

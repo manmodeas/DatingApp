@@ -11,6 +11,7 @@ namespace API.Database
         IdentityUserToken<int>>(options)
     {
         public DbSet<UserLike> Likes { get; set; }
+        public DbSet<Photo> Photos { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Connection> Connections { get; set; }
@@ -73,6 +74,9 @@ namespace API.Database
             builder.Entity<Message>()
                 .Property(e => e.DataRead)
                 .HasConversion(utcConverter2);
+
+            builder.Entity<Photo>()
+                .HasQueryFilter(p => p.IsApproved);
         }
     }
 }

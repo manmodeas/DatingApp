@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { Member } from '../../../_models/member';
 import { RouterLink } from '@angular/router';
 import { LikesService } from '../../../_services/likes.service';
@@ -11,6 +11,8 @@ import { PresenceService } from '../../../_services/presence.service';
   styleUrl: './member-card.component.css'
 })
 export class MemberCardComponent {
+  isJustCard = input(false);
+  onCardClick = output<Member>();
   private presenceService = inject(PresenceService);
   private likeService = inject(LikesService);
   member  = input.required<Member>();
@@ -26,5 +28,10 @@ export class MemberCardComponent {
           this.likeService.likeIds.update(ids => [...ids, this.member().id])
       }
     })
+  }
+
+  onClick() {
+    this.onCardClick.emit(this.member())
+    // console.log(this.isJustCard())
   }
 }

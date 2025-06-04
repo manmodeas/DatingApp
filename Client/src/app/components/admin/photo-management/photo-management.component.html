@@ -1,1 +1,54 @@
-<p>photo-management works!</p>
+<div class="row">
+    <ul class="col-2 list-group" style="width: 180px; overflow-y: scroll; max-height: 700px; min-height: 500px;">
+    @for(member of photoManageService.paginatedResult()?.items; track member.id)
+    { 
+        <li class="list-group-item">
+          <app-member-card [member]="member" [isJustCard]="true" (onCardClick)="onClick($event)"></app-member-card>
+        </li>
+    }
+    </ul>
+    <div class="col-8">
+        @if(member) {
+            <div class="d-flex flex-column justify-content-center">
+                <div class="d-flex w-100 align-items-center">
+                    <h4 class="ms-3" style="color: blueviolet;">{{member.knownAs}} : </h4>
+                    <h6 class="ms-3 mt-1" style="color: brown;">Total unapproved photos = {{images.length}}</h6>
+                </div>
+                <gallery 
+                    #myGallery
+                    class="w-60"
+                    [items]="images" 
+                    thumbs="true"
+                    [thumbPosition]="'left'"
+                    [itemAutosize]="false"
+                    (indexChange)="onItemChange($event)"
+                    thumbPosition="left"
+                    ></gallery>
+                @if (images.length > 0) {
+                    <button type="button" class="btn btn-success" (click)="onApprove()" [disabled]="images.length === 0"><i class="fa fa-check"></i></button>
+                }
+                
+            </div>
+        }
+    </div>
+    @if(photoManageService.paginatedResult()?.pagination)
+    {
+        <div class="d-flex justify-content-center">
+            <pagination 
+                [boundaryLinks]="true" 
+                [totalItems]="photoManageService.paginatedResult()?.pagination!.totalItems"
+                [itemsPerPage]="photoManageService.paginatedResult()?.pagination!.itemsPerPage"
+                (pageChanged)="pagedChanged($event)"
+                [maxSize]="10"
+                [(ngModel)]="photoManageService.paginatedResult()?.pagination!.currentPage"
+                previousText="&lsaquo;" 
+                nextText="&rsaquo;" 
+                firstText="&laquo;" 
+                lastText="&raquo;">
+            
+            </pagination>
+        </div>
+    }
+
+</div>
+
