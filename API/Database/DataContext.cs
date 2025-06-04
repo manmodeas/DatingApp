@@ -40,13 +40,13 @@ namespace API.Database
                 .HasOne(s => s.SourceUser)
                 .WithMany(t => t.LikedByUser)
                 .HasForeignKey(t => t.SourceUserId)
-                .OnDelete(DeleteBehavior.Cascade);  //Might through error if you are using sql server //change it to NoAction
+                .OnDelete(DeleteBehavior.NoAction);  //Might through error if you are using sql server //change it to NoAction
 
             builder.Entity<UserLike>()
                 .HasOne(s => s.TargetUser)
                 .WithMany(t => t.LikedUser)
                 .HasForeignKey(t => t.TargetUserId)
-                .OnDelete(DeleteBehavior.Cascade);  //Might through error if you are using sql server //change it to NoAction
+                .OnDelete(DeleteBehavior.NoAction);  //Might through error if you are using sql server //change it to NoAction
 
             builder.Entity<Message>()
                 .HasOne(s => s.Sender)
