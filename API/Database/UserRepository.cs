@@ -10,20 +10,23 @@ namespace API.Database
 {
     public class UserRepository(DataContext dbContext, IMapper mapper) : IUserRepository
     {
-        public async Task<MemberDto?> GetMemberAsync(string username)
+        public async Task<MemberDto?> GetMemberAsync(string username, bool isUnapprovedPhoto)
         {
-            return await dbContext.Users
+            var query = dbContext.Users
                 .Where(x => x.UserName == username)
                 .ProjectTo<MemberDto>(mapper.ConfigurationProvider)
-                .SingleOrDefaultAsync();
+                .AsQueryable();
+
+            if (isUnapprovedPhoto) query = query.IgnoreQueryFilters();
+            return await query.SingleOrDefaultAsync();
         }
 
-        public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams param)
+        public async Task<PagedList<MemberDto>> GetMembersWithFilterAsync(UserParams param)
         {
             var query = dbContext.Users.AsQueryable();
             query = query.Where(x => x.UserName != param.CurerntUserName);
 
-            if(param.Gender != null)
+            if(!string.IsNullOrEmpty(param.Gender))
             {
                 query = query.Where(x => x.Gender == param.Gender);
             }
@@ -41,17 +44,30 @@ namespace API.Database
             return await PagedList<MemberDto>.CreateAsync(query.ProjectTo<MemberDto>(mapper.ConfigurationProvider), param.PageNumber, param.PageSize);
         }
 
+        public async Task<PagedList<MemberDto>> GetMembersAsync(PaginationParam param, bool isUnapprovedPhoto)
+        {
+            var query = dbContext.Users.AsQueryable();
+
+            query = query.OrderByDescending(x => x.LastActive);
+
+            if (isUnapprovedPhoto) query = query.IgnoreQueryFilters();
+
+            return await PagedList<MemberDto>.CreateAsync(query.ProjectTo<MemberDto>(mapper.ConfigurationProvider), param.PageNumber, param.PageSize);
+        }
+
         public async Task<AppUser?> GetUserByIdAsync(int id)
         {
             return await dbContext.Users
                 .SingleOrDefaultAsync(x => x.Id == id); 
         }
 
-        public async Task<AppUser?> GetUserByUsernameAsync(string username)
+        public async Task<AppUser?> GetUserByUsernameAsync(string username, bool isUnapprovedPhoto = false)
         {
-            return await dbContext.Users
+            var query = dbContext.Users
                 .Include(x => x.Photos)
-                .SingleOrDefaultAsync(x => x.UserName == username);
+                .AsQueryable();
+            if (isUnapprovedPhoto) query = query.IgnoreQueryFilters();
+            return await query.SingleOrDefaultAsync(x => x.UserName == username);
         }
 
         public async Task<IEnumerable<AppUser>> GetUsersAsync()

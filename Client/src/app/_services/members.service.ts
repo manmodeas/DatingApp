@@ -23,8 +23,7 @@ export class MembersService {
   memberCache = new Map();
   
 
-  getmembers() {
-    
+  getmembers() {    
     // console.log(Object.values(this.userParams()).join('-'));
     const response = this.memberCache.get(Object.values(this.accountService.userParams()).join('-'));
     if(response) return setPaginatedResponse(response, this.paginatedResult);
@@ -45,7 +44,9 @@ export class MembersService {
     });
   }
 
-  getMember(username : string)
+  
+
+  getMember(username : string, isCurrentUser: boolean)
   {
     //old- const member = this.members().find(x => x.userName === username);
     //old- if(member !== undefined) return of(member);
@@ -56,7 +57,7 @@ export class MembersService {
 
     if(member) return of(member);
 
-    return this.http.get<Member>(this.baseUrl + 'users/' + username); 
+    return this.http.get<Member>(this.baseUrl + 'users/' + username + "?isUnapprovedPhoto=" + isCurrentUser); 
   }
 
   updateMember(member: Member) {
