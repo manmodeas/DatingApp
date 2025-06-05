@@ -31,6 +31,7 @@ export class AppComponent implements OnInit {
     
     const user = JSON.parse(userString);    
     this.accountService.setCurrentUser(user);
+      this.router.navigateByUrl("/members");
   }
 
 
