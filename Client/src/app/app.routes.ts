@@ -10,9 +10,11 @@ import { preventUnsavedChangesGuard } from './_guards/prevent-unsaved-changes.gu
 import { memberDetailedResolver } from './_resolvers/member-detailed.resolver';
 import { AdminPanelComponent } from './components/admin/admin-panel/admin-panel.component';
 import { adminGuard } from './_guards/admin.guard';
+import { LoginFormComponent } from './components/login-form/login-form.component';
 //we can provide multiple gurads in canAvticate 
 export const routes: Routes = [
     {path: '', component:HomeComponent},
+    {path: 'loginform', component:LoginFormComponent},
     {
         path: '',
         runGuardsAndResolvers: 'always',
